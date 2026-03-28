@@ -356,6 +356,7 @@
 <div class="tab-bar">
   <button class="active" onclick="switchTab('main')">Main Script 主稿</button>
   <button onclick="switchTab('followup')">Follow-Up Q&A 追問提示</button>
+  <button onclick="switchTab('extra')">補充 Extra</button>
 </div>
 
 <!-- MAIN AREA -->
@@ -505,12 +506,54 @@ const followUpData = [
   { id: 'f20', num: 'Q20', category: 'Closing', catColor: 'var(--primary)', question: 'What makes your team special?', who: 'Everyone', answer: 'Our team is special because we keep improving and never give up. We test a lot, learn from failure, and work well together. That is how we built our current robot.', key: 'Improve + Never give up + Teamwork' },
 ];
 
+const extraData = [
+  {
+    id: 'e1', num: 'S1', title: 'Hook Arm', titleZh: '機構補充① — Hook Arm', time: '',
+    catColor: 'var(--lucas)',
+    lines: [
+      { name: 'Lucas', text: 'I want to add about our robot design and improvements.', zh: '我想補充關於機構設計和改善。' },
+      { name: 'Lucas', text: 'About Hook Arm — We changed the gear ratio from 2.5 to 5 to make more power and stronger lifting.', zh: '關於 Hook Arm — 齒輪比從 2.5 倍減速改成 5 倍減速，把扭力加大，讓舉升更有力。' },
+      { name: 'Lucas', text: 'We also adjusted the pivot so the arm can lift higher.', zh: '我們也調整了支點，讓手臂可以舉得更高。' },
+      { name: 'Lucas', text: 'We improved the hook design so it can hold the Beam more tightly.', zh: '我們改善了 Hook 的機構，讓它可以夾住 Beam 更深、夾得更緊。' },
+      { name: 'Lucas', text: 'Now we can place a small Y on the Standoff more stably.', zh: '現在我們可以更穩定地把小 Y 放到 Standoff 上面。' },
+    ],
+  },
+  {
+    id: 'e2', num: 'S2', title: 'Guide & Positioning', titleZh: '機構補充② — 導角和定位', time: '',
+    catColor: 'var(--lucas)',
+    lines: [
+      { name: 'Lucas', text: 'We also designed guides and a positioning structure to make stacking Y more stable.', zh: '我們還設計了導角和定位機構，讓疊 Y 的時候更穩定。' },
+      { name: 'Lucas', text: 'The lower guide helps us grab Pins faster.', zh: '下方的 Pin 導角設計，讓我們可以更快速地夾到 Pin。' },
+    ],
+  },
+  {
+    id: 'e3', num: 'S3', title: 'Pin Arm', titleZh: '機構補充③ — Pin Arm', time: '',
+    catColor: 'var(--lucas)',
+    lines: [
+      { name: 'Lucas', text: 'About Pin Arm — We improved the arm and claw, so now it can flip 4 Pins instead of 2.', zh: '關於 Pin Arm — 我們修改了手臂和爪子的結構，讓 Pin Arm 原本 180 度只能翻 2 個 Pins，現在可以翻 4 個，效率更高。' },
+      { name: 'Lucas', text: 'We adjusted the pivot, so it can lift higher and place a Pin on the Standoff.', zh: '調整支點讓 Pin Arm 可以舉更高，可以高舉放一個 Pin 到 Standoff 上面。' },
+      { name: 'Lucas', text: 'We also improved the back structure and program, so we can grab the starting Pin and stack it smoothly.', zh: '加爪子後面的結構和調整程式，可以順利夾 Starting Pin 並進行堆疊。' },
+    ],
+  },
+  {
+    id: 'e4', num: 'S4', title: 'Programming (Extra)', titleZh: '程式補充', time: '',
+    catColor: 'var(--hayden)',
+    lines: [
+      { name: 'Hayden', text: 'I also want to add about our programming.', zh: '我想補充關於程式的部分。' },
+      { name: 'Hayden', text: 'We tried using a distance sensor before, but our claw is too high, so it cannot see the top of the Pin clearly.', zh: '我們原先有試過距離感應器，但因為爪子結構較高，會導致感應器照不到 Pin 頂端一部分。' },
+      { name: 'Hayden', text: 'This made it unstable, so we changed our design.', zh: '所以感應器會很不穩定，因此我們調整了設計方式。' },
+    ],
+  },
+];
+
 // ===== STATE =====
 let currentTab = 'main';
 let currentIndex = 0;
 
 function getData() {
-  return currentTab === 'main' ? mainScriptData : followUpData;
+  if (currentTab === 'main') return mainScriptData;
+  if (currentTab === 'followup') return followUpData;
+  return extraData;
 }
 
 // ===== RENDER SIDEBAR =====
@@ -529,6 +572,15 @@ function renderSidebar() {
         <span class="num" style="background:${item.catColor}">${item.num}</span>
         ${item.title}
         ${starHtml}
+      </button>`;
+    });
+  } else if (currentTab === 'extra') {
+    html += '<div class="section-label">補充 Extra</div>';
+    data.forEach((item, i) => {
+      const active = i === currentIndex ? ' active' : '';
+      html += `<button class="${active}" onclick="goTo(${i})">
+        <span class="num" style="background:${item.catColor}">${item.num}</span>
+        ${item.title}
       </button>`;
     });
   } else {
@@ -587,86 +639,4 @@ function renderContent() {
 
     html = `<div class="card active">
       <span class="category-badge" style="background:${item.catColor}">${item.num} &mdash; ${item.titleZh}</span>
-      ${item.star ? '<span class="trap-warning" style="background:var(--accent);animation:none">KEY SLIDE</span>' : ''}
-      <span class="time-hint">${item.time}</span>
-      <h1 class="question" style="margin-top:14px">${item.title}</h1>
-      <div style="border-bottom:1px solid #E8ECF2;margin-bottom:24px"></div>
-      ${item.lines.map(l => `
-        <div class="script-line">
-          <span class="script-name" style="background:${NAME_COLORS[l.name]}">${l.name}</span>
-          <span class="script-text">${l.text}</span>
-        </div>
-      `).join('')}
-      ${detailedSection}
-    </div>`;
-  } else {
-    const isTrap = item.trap;
-    const boxClass = isTrap ? 'trap' : 'normal';
-    const keyColor = isTrap ? 'var(--trap-red)' : 'var(--key-green)';
-    html = `<div class="card active" ${isTrap ? 'style="background:var(--trap-bg)"' : ''}>
-      <span class="category-badge" style="background:${item.catColor}">${item.category}</span>
-      ${isTrap ? '<span class="trap-warning">TRAP QUESTION</span>' : ''}
-      ${item.star ? '<span class="trap-warning" style="background:var(--accent);animation:none">KEY ANSWER</span>' : ''}
-      <h1 class="question">${item.question}</h1>
-      <div class="who-row">
-        <span class="who-badge" style="background:${NAME_COLORS[item.who] || 'var(--primary)'}">${item.who}</span>
-        <span class="who-label">answers this question</span>
-      </div>
-      <div class="answer-text">${item.answer}</div>
-      <div class="key-box ${boxClass}">
-        <span class="key-label" style="color:${keyColor}">KEY:</span>
-        <span class="key-value" style="color:${keyColor}">${item.key}</span>
-      </div>
-    </div>`;
-  }
-  content.innerHTML = html;
-}
-
-// ===== NAVIGATION =====
-function goTo(index) {
-  const data = getData();
-  currentIndex = Math.max(0, Math.min(index, data.length - 1));
-  renderSidebar();
-  renderContent();
-  // Scroll sidebar active button into view
-  const activeBtn = document.querySelector('.sidebar button.active');
-  if (activeBtn) activeBtn.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-}
-
-function switchTab(tab) {
-  currentTab = tab;
-  currentIndex = 0;
-  // Update tab buttons
-  document.querySelectorAll('.tab-bar button').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent.includes(tab === 'main' ? 'Main' : 'Follow'));
-  });
-  renderSidebar();
-  renderContent();
-}
-
-// ===== KEYBOARD SHORTCUTS =====
-document.addEventListener('keydown', (e) => {
-  const data = getData();
-  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-    e.preventDefault();
-    goTo(currentIndex + 1);
-  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-    e.preventDefault();
-    goTo(currentIndex - 1);
-  } else if (e.key === 'Tab') {
-    e.preventDefault();
-    switchTab(currentTab === 'main' ? 'followup' : 'main');
-  } else if (e.key >= '1' && e.key <= '9') {
-    const idx = parseInt(e.key) - 1;
-    if (idx < data.length) goTo(idx);
-  } else if (e.key === '0') {
-    goTo(9); // Q10
-  }
-});
-
-// ===== INIT =====
-renderSidebar();
-renderContent();
-</script>
-</body>
-</html>
+      ${item.star ? '<span class="trap-warning" style="background:var(--accent
