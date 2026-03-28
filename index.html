@@ -441,10 +441,10 @@ const mainScriptData = [
     catColor: 'var(--accent)', star: true,
     lines: [
       { name: 'Amber', text: 'Our most creative design is our PTO clutch system using pneumatics.' },
-      { name: 'Amber', text: 'When the pneumatic shaft extends, it powers the drivetrain. When it retracts, it powers the arm.' },
+      { name: 'Amber', text: 'Because this design our robot has a four-motor drivetrain, it helps reduce speed loss when carrying objects and turning.' },
+      { name: 'Amber', text: 'When the pneumatic shaft extends, it powers the drivetrain. When it retracts, it powers the hook arm.' },
       { name: 'Amber', text: 'We tested our Gen 4 and Gen 5 robots under different loads. Our Gen 5 is about 14.5% faster.' },
       { name: 'Amber', text: 'This gives us about 8.7 more seconds in a 60-second run, which helps us score more points.' },
-      { name: 'Amber', text: 'We also designed a guide structure to improve placement accuracy.' },
     ],
   },
   {
@@ -454,6 +454,15 @@ const mainScriptData = [
       { name: 'Hayden', text: 'For Autonomous, we run a reset routine to ensure consistency every time the robot starts.' },
       { name: 'Hayden', text: 'We use the Touch LED as a status indicator. A flashing red light means the gyro is calibrating. A flashing green light means it is ready.' },
       { name: 'Hayden', text: 'In driver control, a green light indicates the claw is at the lowest position, so we know it is safe to grab a Pin.' },
+    ],
+    detailedLines: [
+      { name: 'Hayden', text: 'In Autonomous mode, we use a Touch LED as a safety check before the program starts. We use the gyro to calibrate to make sure all parts return to the correct starting position.' },
+      { name: 'Hayden', text: 'The LED shows red when the robot is still checking. The LED shows green when it is ready to start.' },
+      { name: 'Hayden', text: 'During movement, we use the gyro to help our robot turn and drive more accurately and stably.' },
+      { name: 'Hayden', text: 'We also use My Blocks to repeat actions, so we can easily build and control our robot path.' },
+      { name: 'Hayden', text: 'In Driver-Controlled mode, we use "wait until" so the robot only performs actions when we press a button.' },
+      { name: 'Hayden', text: 'We also add safety checks to prevent repeated actions.' },
+      { name: 'Hayden', text: 'In addition, the Touch LED green light means the claw is at the lowest position, so we can grab the Pin safely.' },
     ],
   },
   {
@@ -559,6 +568,23 @@ function renderContent() {
   let html = '';
 
   if (currentTab === 'main') {
+    const detailedSection = item.detailedLines ? `
+      <div style="margin-top:28px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="flex:1;height:1px;background:#E8ECF2;"></div>
+          <span style="font-size:11px;font-weight:700;color:#999;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;">詳細版 Full Version</span>
+          <div style="flex:1;height:1px;background:#E8ECF2;"></div>
+        </div>
+        <div style="background:#F5F8FF;border:1px solid #D0DCEE;border-radius:10px;padding:20px 24px;">
+          ${item.detailedLines.map(l => `
+            <div class="script-line">
+              <span class="script-name" style="background:${NAME_COLORS[l.name]}">${l.name}</span>
+              <span class="script-text">${l.text}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>` : '';
+
     html = `<div class="card active">
       <span class="category-badge" style="background:${item.catColor}">${item.num} &mdash; ${item.titleZh}</span>
       ${item.star ? '<span class="trap-warning" style="background:var(--accent);animation:none">KEY SLIDE</span>' : ''}
@@ -571,6 +597,7 @@ function renderContent() {
           <span class="script-text">${l.text}</span>
         </div>
       `).join('')}
+      ${detailedSection}
     </div>`;
   } else {
     const isTrap = item.trap;
